@@ -1,22 +1,34 @@
 class Product
-  attr_accessor :name, :price, :url, :merchant, :review
+  attr_accessor :name, :price, :url, :merchant, :review, :extras
 
-  def initialize(name:, price:, url:, merchant:, review:)
-    @name = name
-    @price = price
-    @url = url
-    @merchant = merchant
-    @review = review || { rating: 0.0, count: 0 }
+  def initialize(attrs = {})
+    # Necessary 
+    @name = attrs[:name]
+    @price = attrs[:price]
+    @url = attrs[:url]
+    @merchant = attrs[:merchant]
+    @review = attrs[:review] || { rating: "n/a", count: 0 }
+
+    # Scraper specific additions
+    @extras = attrs[:extras] || {}
   end
 
+  
+
   def to_s
+    extra_lines = extras.map do |key, value|
+    "#{key}: #{value}"
+    end.join("\n")
   <<~TEXT
   -----------------------------------
   #{name}
-  #{price}
+  £#{price} (including VAT)
   ⭐ Average Rating: #{review[:rating]} out of #{review[:count]} ratings
   #{merchant}
   #{url}
+  
+  EXTRA INFORMATION
+  #{extra_lines}
   TEXT
   end
 end

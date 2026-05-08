@@ -30,7 +30,10 @@ class TravisPerkins < BaseScraper
       body: body.to_json
     )
 
-    parse_products(response.body)
+    products = parse_products(response.body)
+    products.each do |product|
+      puts product.to_s
+    end
   rescue => e
     puts "TP error: #{e}"
     []
@@ -64,7 +67,8 @@ class TravisPerkins < BaseScraper
         price: extract_price(product),
         url: product_url(product),
         merchant: "Travis Perkins",
-        review: extract_reviews(product)
+        review: extract_reviews(product),
+        extras: [extract_extras(product)]
       )
 
     end
@@ -75,6 +79,19 @@ class TravisPerkins < BaseScraper
     price.dig("retailPrice", "valueIncVat").to_f
   end
 
+  def extract_extras(product) 
+    specs = product['technicalSpecifications'] || []
+    
+    specs.each_with_object({}) do |spec, hash|
+      key = spec['name']&.strip
+      value = spec['value']
+
+      next if key.nil? || value.nil?
+
+      hash[key] = value
+    end
+  end
+
   def format_price(price)
     return "N/A" if price.nil?
 
@@ -83,12 +100,12 @@ class TravisPerkins < BaseScraper
 
   def extract_reviews(product)
     review = product.dig("review") || {}
-    puts review
     {
       rating: review['averageRating'].to_f,
       count: review['numberOfReviews'].to_i
     }
   end
+
 
   def product_url(product)
     "https://www.travisperkins.co.uk/product/#{product['sku']}"
@@ -106,6 +123,10 @@ class TravisPerkins < BaseScraper
             review {
               averageRating
               numberOfReviews
+            }
+            technicalSpecifications {
+              name
+              value
             }
             price {
               price {
