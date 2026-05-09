@@ -13,7 +13,6 @@ class Product
     @extras = attrs[:extras] || {}
   end
 
-  
 
   def to_s
     extra_lines = extras.map do |key, value|

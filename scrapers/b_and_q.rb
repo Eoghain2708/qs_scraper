@@ -20,7 +20,7 @@ class BNQScraper < BaseScraper
     data = JSON.parse(response.body)
     products = data.dig("suggestionGroups", 0, "searchSuggestions") || []
 
-    instances = products.map do |item|
+    return products.map do |item|
       Product.new({
         name: item['title'],
         merchant: 'B and Q',
@@ -28,10 +28,8 @@ class BNQScraper < BaseScraper
         price: item['sale_price'].to_f
       })
     end
-
-    instances.each do |p| 
-      puts p.to_s
-    end
-
+  rescue => e
+    puts "Cannot find data using this page due to error #{e}"
+    []
   end
 end

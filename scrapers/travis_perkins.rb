@@ -30,10 +30,8 @@ class TravisPerkins < BaseScraper
       body: body.to_json
     )
 
-    products = parse_products(response.body)
-    products.each do |product|
-      puts product.to_s
-    end
+    return parse_products(response.body)
+    
   rescue => e
     puts "TP error: #{e}"
     []
